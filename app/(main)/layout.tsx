@@ -171,7 +171,7 @@ const menus = [
         title: "User",
         href: "#",
         subItems: [
-          { title: "User WMS", href: "/admin/user/wms" },
+          { title: "User WMS", href: "/user-wms" },
           { title: "User Toko", href: "/admin/user/toko" },
         ],
       },
