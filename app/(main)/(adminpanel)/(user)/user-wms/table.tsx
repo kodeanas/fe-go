@@ -14,6 +14,7 @@ type Props = {
   setPage: (page: number) => void
   setLimit: (limit: number) => void
   meta?: Meta | null
+  refreshData: () => void
 }
 
 export function TableUser({
@@ -24,6 +25,7 @@ export function TableUser({
   setPage,
   setLimit,
   meta,
+  refreshData,
 }: Props) {
   const [modalEdit, setModalEdit] = React.useState(false)
   const [editData, setEditData] = React.useState<UserResponse | null>(null)
@@ -63,6 +65,7 @@ export function TableUser({
       })
       alert("Berhasil mengubah user")
       closeEditModal()
+      refreshData()
       // TODO: refresh data, bisa lewat props callback atau window.location.reload()
       window.location.reload()
     } catch (err) {
@@ -92,6 +95,7 @@ export function TableUser({
       await deleteUser(id)
       alert("Berhasil menghapus user")
       closeDeleteModal()
+      refreshData()
     } catch (err) {
       alert("Gagal Hapus data")
     }
@@ -170,9 +174,13 @@ export function TableUser({
           </button>
           <span>Page {page}</span>
           <button
-            className="rounded border px-3 py-1"
-            onClick={() => setPage(page + 1)}
-            disabled={users.length < limit}
+            className="rounded border px-3 py-1 disabled:cursor-not-allowed disabled:opacity-50"
+            onClick={() => {
+              if (meta && page < meta.pagination.total_pages) {
+                setPage(page + 1)
+              }
+            }}
+            disabled={!meta || page >= meta.pagination.total_pages}
           >
             Next
           </button>
@@ -181,7 +189,7 @@ export function TableUser({
             value={limit}
             onChange={(e) => setLimit(Number(e.target.value))}
           >
-            {[5, 10, 20, 50].map((l) => (
+            {[1, 5, 10, 20, 50].map((l) => (
               <option key={l} value={l}>
                 {l} / page
               </option>
