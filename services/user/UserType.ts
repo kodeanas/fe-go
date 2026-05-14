@@ -32,7 +32,7 @@ export interface UserResponse {
 }
 
 export interface QueryParamsUser {
-  name?: string
+  search?: string
   limit?: number
   page?: number
 }

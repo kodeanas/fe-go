@@ -4,14 +4,14 @@ import { AppCard } from "@/components/globals/app-card"
 import { AppModal } from "@/components/globals/app-modal"
 import { createUser, getUsers } from "@/services/user/UserService"
 import { Meta } from "@/services/Meta"
-import React, { useEffect } from "react"
+import React, { Suspense, useEffect } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { TableUser } from "./table"
 import { UserResponse } from "@/services/user/UserType"
 import { User } from "lucide-react"
 import { Toggle } from "@/components/ui/toggle"
 
-export default function UserWmsPage() {
+function UserWmsContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   // Modal create
@@ -81,6 +81,20 @@ export default function UserWmsPage() {
   }, [search, page, limit, router])
   // Debounce search
   const [debouncedSearch, setDebouncedSearch] = React.useState(search)
+  const fetchData = async () => {
+    try {
+      const data = await getUsers({
+        search: debouncedSearch || undefined,
+        page,
+        limit,
+      })
+      setUsers(data.data)
+      setMeta(data.meta)
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(search)
@@ -89,16 +103,12 @@ export default function UserWmsPage() {
   }, [search])
 
   useEffect(() => {
-    const fetch = async () => {
-      const data = await getUsers({
-        name: debouncedSearch || undefined,
-        page,
-        limit,
-      })
-      setUsers(data.data)
-      setMeta(data.meta)
-    }
-    fetch()
+    fetchData()
+    const params = new URLSearchParams()
+    if (search) params.set("name", search)
+    params.set("page", String(page))
+    params.set("limit", String(limit))
+    router.replace(`?${params.toString()}`)
   }, [debouncedSearch, page, limit])
 
   // Total User
@@ -122,6 +132,7 @@ export default function UserWmsPage() {
       </div>
       <div className="col-span-2 rounded-lg border-2 border-gray-300 p-3">
         <TableUser
+          refreshData={fetchData}
           users={users}
           onSearch={(value) => {
             setSearch(value)
@@ -222,5 +233,15 @@ export default function UserWmsPage() {
         </AppModal>
       )}
     </div>
+  )
+}
+
+export default function UserWmsPage() {
+  return (
+    <Suspense
+      fallback={<div className="p-10 text-center">Loading Halaman...</div>}
+    >
+      <UserWmsContent />
+    </Suspense>
   )
 }
