@@ -181,7 +181,7 @@ const menus = [
         href: "#",
         subItems: [
           { title: "Kategori", href: "/kategori" },
-          { title: "Sticker", href: "/admin/potongan/sticker" },
+          { title: "Sticker", href: "/sticker" },
         ],
       },
     ],
@@ -208,7 +208,12 @@ export default function MainLayout({
         <SidebarContent>
           {menus.map((menu) => (
             <SidebarGroup key={menu.group}>
-              <SidebarGroupLabel>{menu.group}</SidebarGroupLabel>
+              <SidebarGroupLabel>
+                <div className="flex w-full items-center gap-3 text-lg whitespace-nowrap">
+                  <span>{menu.group}</span>
+                  <hr className="flex-1 border-t border-gray-300" />
+                </div>
+              </SidebarGroupLabel>
               <SidebarMenu>
                 {menu.items.map((item) => {
                   if (item.subItems.length > 0) {
