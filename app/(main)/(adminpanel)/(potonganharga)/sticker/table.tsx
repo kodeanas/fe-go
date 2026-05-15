@@ -356,7 +356,7 @@ export default function TableSticker({
 
       {/* Delete */}
       {deleteModal && (
-        <AppModal onClose={handleDeleteClose} title="Hapus User">
+        <AppModal onClose={handleDeleteClose} title="Hapus Sticker">
           <form method="delete" onSubmit={handleDelete}>
             <div className="space-y-5">
               <div className="w-full justify-center text-center">

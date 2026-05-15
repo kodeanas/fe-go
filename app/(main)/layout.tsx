@@ -175,7 +175,8 @@ const menus = [
           { title: "User Toko", href: "/admin/user/toko" },
         ],
       },
-      { title: "PPN", href: "/admin/ppn", subItems: [] },
+      { title: "PPN", href: "/ppn", subItems: [] },
+      { title: "Kelas Buyer", href: "/kelas-buyer", subItems: [] },
       {
         title: "Potongan Harga",
         href: "#",
