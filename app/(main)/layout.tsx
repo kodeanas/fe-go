@@ -61,10 +61,10 @@ const menus = [
         title: "ScanIn",
         href: "#",
         subItems: [
-          { title: "Bast", href: "/inbound/scanin/bast" },
+          { title: "Bast", href: "/bast" },
           { title: "Bulk", href: "/inbound/scanin/bulk" },
           { title: "SKU", href: "/inbound/scanin/sku" },
-          { title: "Satuan", href: "/inbound/scanin/satuan" },
+          { title: "Satuan", href: "/satuan" },
         ],
       },
       { title: "Return BKL", href: "/inbound/return-bkl", subItems: [] },
