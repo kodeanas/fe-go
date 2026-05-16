@@ -44,12 +44,12 @@ export function AppTable<T>({
 
       <div className="overflow-x-auto rounded-lg border border-gray-200">
         <table className="w-full divide-y divide-gray-200 text-sm">
-          <thead className="bg-gray-50">
+          <thead className="bg-gray-50 dark:bg-gray-700">
             <tr>
               {columns.map((col, index) => (
                 <th
                   key={index}
-                  className="px-4 py-3 text-left font-semibold text-gray-700"
+                  className="px-4 py-3 text-left font-semibold text-gray-700 dark:text-gray-300"
                 >
                   {col.header}
                 </th>
@@ -61,7 +61,7 @@ export function AppTable<T>({
               data.map((item, rowIndex) => (
                 <tr
                   key={rowIndex}
-                  className="transition-colors hover:bg-gray-50"
+                  className="transition-colors hover:bg-gray-50 dark:hover:bg-gray-600"
                 >
                   {columns.map((col, colIndex) => (
                     <td key={colIndex} className="px-4 py-3 whitespace-nowrap">
@@ -87,7 +87,7 @@ export function AppTable<T>({
       {/* Pagination UI */}
       <div className="mt-4 flex items-center gap-2">
         <button
-          className="rounded border px-3 py-1 hover:bg-gray-50 disabled:opacity-50"
+          className="rounded border px-3 py-1 hover:bg-gray-50 disabled:opacity-50 dark:hover:bg-gray-700"
           onClick={() => setPage(page - 1)}
           disabled={page <= 1}
         >
@@ -95,14 +95,14 @@ export function AppTable<T>({
         </button>
         <span className="text-sm font-medium">Halaman {page}</span>
         <button
-          className="rounded border px-3 py-1 hover:bg-gray-50 disabled:opacity-50"
+          className="rounded border px-3 py-1 hover:bg-gray-50 disabled:opacity-50 dark:hover:bg-gray-700"
           onClick={() => setPage(page + 1)}
           disabled={!meta || page >= (meta.pagination?.total_pages || 0)}
         >
           Next
         </button>
         <select
-          className="ml-4 rounded border px-2 py-1 text-sm"
+          className="ml-4 rounded border px-2 py-1 text-sm dark:bg-gray-700"
           value={limit}
           onChange={(e) => setLimit(Number(e.target.value))}
         >

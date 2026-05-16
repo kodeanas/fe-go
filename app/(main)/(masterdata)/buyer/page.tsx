@@ -116,7 +116,7 @@ function BuyerContent() {
       <AppCardSecondary
         title="Buyer"
         icon={<Users className="text-white" />}
-        number={100}
+        number={meta?.pagination.total_items || 0}
       >
         <button
           onClick={handleOpenCreate}
