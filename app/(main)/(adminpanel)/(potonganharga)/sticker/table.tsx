@@ -1,18 +1,13 @@
-"use client"
-
 import { AppModal } from "@/components/globals/app-modal"
 import { formatRibuan } from "@/lib/utils"
-import {
-  deleteCategory,
-  editCategory,
-} from "@/services/category/CategoryService"
-import { CategoryResponse } from "@/services/category/CategoryType"
 import { Meta } from "@/services/Meta"
+import { deleteSticker, updateSticker } from "@/services/sticker/StickerService"
+import { StickerResponse } from "@/services/sticker/StickerType"
 import { Edit, Trash2 } from "lucide-react"
 import React from "react"
 
 type Props = {
-  categories: CategoryResponse[]
+  stickers: StickerResponse[]
   onSearch: (value: string) => void
   page: number
   limit: number
@@ -22,82 +17,99 @@ type Props = {
   refreshData: () => void // Prop baru
 }
 
-export default function TableKategori({
-  categories,
+export default function TableSticker({
+  stickers,
+  refreshData,
   onSearch,
   page,
   limit,
   setPage,
   setLimit,
   meta,
-  refreshData,
 }: Props) {
-  // Edit
+  // Modal Edit
   const [editModal, setEditModal] = React.useState(false)
+  const [codeHex, setCodeHex] = React.useState("")
   const [name, setName] = React.useState("")
-  const [discount, setDiscount] = React.useState(0)
+  const [type, setType] = React.useState("")
+  const [fixedPrice, setFixedPrice] = React.useState(0)
   const [status, setStatus] = React.useState<"active" | "inactive">("active")
+  const [minPrice, setMinPrice] = React.useState(0)
   const [maxPrice, setMaxPrice] = React.useState(0)
-  const [id, setId] = React.useState("")
+  const [id, setId] = React.useState("") // State untuk menyimpan ID sticker yang sedang diedit
 
-  const handleOpenEdit = (category: CategoryResponse) => {
-    setId(category.id)
-    setName(category.name)
-    setDiscount(category.discount)
-    setStatus(category.status)
-    setMaxPrice(category.max_price)
+  const handleEditOpen = (sticker: StickerResponse) => {
+    setId(sticker.id)
+    setCodeHex(sticker.code_hex)
+    setName(sticker.name)
+    setType(sticker.type)
+    setFixedPrice(sticker.fixed_price)
+    setStatus(sticker.status)
+    setMinPrice(sticker.min_price)
+    setMaxPrice(sticker.max_price)
     setEditModal(true)
   }
 
-  const handleCloseEdit = () => {
-    setEditModal(false)
-    setId("")
+  const handleEditClose = () => {
     setName("")
-    setDiscount(0)
+    setType("small") // Langsung set ke small
+    setFixedPrice(12000) // Langsung set harga small
     setStatus("active")
+    setCodeHex("#000000") // Beri default warna agar tidak error/kosong
+    setMinPrice(0)
     setMaxPrice(0)
+    setEditModal(false)
   }
 
-  // Edit
-  const handleEdit = async (e: any) => {
-    // e.preventDefault()
+  //   Edit api
+  const handleEdit = async () => {
     try {
-      const data = await editCategory(id, {
+      const data = await updateSticker(id, {
+        code_hex: codeHex,
         name,
-        discount,
+        type,
+        fixed_price: fixedPrice,
         status,
+        min_price: minPrice,
         max_price: maxPrice,
       })
-      handleCloseEdit()
-      alert("Berhasil mengubah kategori")
-      refreshData() // Panggil refreshData setelah berhasil edit
+      refreshData() // Memanggil fungsi refreshData setelah berhasil mengubah sticker
+      handleEditClose() // Menutup modal setelah berhasil mengubah sticker
+      alert("Berhasil mengubah sticker")
     } catch (error) {
-      alert("Gagal mengubah kategori")
+      console.error("Error updating sticker:", error)
+      alert("Gagal mengubah sticker")
     }
   }
 
-  // Delete Modal
+  //   Delete Modal
   const [deleteModal, setDeleteModal] = React.useState(false)
-  const handleOpenDelete = (category: CategoryResponse) => {
-    setId(category.id)
-    setName(category.name)
+  const [deleteId, setDeleteId] = React.useState("")
+  const [deleteName, setDeleteName] = React.useState("")
+  const [deleteCodeHex, setDeleteCodeHex] = React.useState("")
+
+  const handleDeleteOpen = (sticker: StickerResponse) => {
+    setDeleteId(sticker.id)
+    setDeleteName(sticker.name)
+    setDeleteCodeHex(sticker.code_hex)
     setDeleteModal(true)
   }
-
-  const handleCloseDelete = () => {
+  const handleDeleteClose = () => {
     setDeleteModal(false)
-    setId("")
-    setName("")
+    setDeleteId("")
+    setDeleteName("")
+    setDeleteCodeHex("")
   }
 
-  const handleDelete = async (e: any) => {
+  const handleDelete = async () => {
     try {
-      const data = await deleteCategory(id)
-      handleCloseDelete()
-      alert("Berhasil menghapus kategori")
-      refreshData() // Panggil refreshData setelah berhasil delete
+      const data = await deleteSticker(deleteId)
+      refreshData() // Memanggil fungsi refreshData setelah berhasil menghapus sticker
+      handleDeleteClose() // Menutup modal setelah berhasil menghapus sticker
+      alert("Berhasil menghapus sticker")
     } catch (error) {
-      alert("Gagal menghapus kategori")
+      console.error("Error deleting sticker:", error)
+      alert("Gagal menghapus sticker")
     }
   }
 
@@ -109,40 +121,47 @@ export default function TableKategori({
           name="name"
           className="border-2 border-gray-200 px-3 py-1"
           placeholder="Cari nama . . ."
-          onChange={(e) => onSearch(e.target.value)}
+          onChange={(e) => onSearch?.(e.target.value)}
         />
       </div>
       <div className="overflow-x-auto rounded-lg border border-gray-200">
         <table className="w-full divide-y divide-gray-200 text-sm">
           <thead className="">
             <tr>
-              <th className="px-4 py-3 text-left font-semibold">Kategori</th>
-              <th className="px-4 py-3 text-left font-semibold">Diskon</th>
+              <th className="px-4 py-3 text-left font-semibold">Hex Sticker</th>
+              <th className="px-4 py-3 text-left font-semibold">Nama</th>
+              <th className="px-4 py-3 text-left font-semibold">Type</th>
+              <th className="px-4 py-3 text-left font-semibold">Fixed</th>
               <th className="px-4 py-3 text-left font-semibold">Status</th>
               <th className="px-4 py-3 text-left font-semibold">Action</th>
             </tr>
           </thead>
 
           <tbody className="divide-y divide-gray-200">
-            {categories.map((category) => (
+            {stickers.map((sticker) => (
               <tr
-                key={category.id}
+                key={sticker.id}
                 className="transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
               >
                 <td className="px-4 py-3 font-medium whitespace-nowrap">
-                  {category.name}
+                  <div
+                    className="h-6 w-6 rounded-full"
+                    style={{ backgroundColor: `${sticker.code_hex}` }}
+                  ></div>
+                </td>
+                <td className="px-4 py-3 whitespace-nowrap">{sticker.name}</td>
+                <td className="px-4 py-3 whitespace-nowrap">{sticker.type}</td>
+                <td className="px-4 py-3 whitespace-nowrap">
+                  Rp {formatRibuan(sticker.fixed_price)}
                 </td>
                 <td className="px-4 py-3 whitespace-nowrap">
-                  {category.discount}%
-                </td>
-                <td className="px-4 py-3 whitespace-nowrap">
-                  {category.status ? (
+                  {sticker.status === "active" ? (
                     <span className="rounded-xl bg-green-700 px-3 py-1 text-[10px] text-white">
                       Aktif
                     </span>
                   ) : (
                     <span className="rounded-xl bg-red-700 px-3 py-1 text-[10px] text-white">
-                      Tdk Aktif
+                      Nonaktif
                     </span>
                   )}
                 </td>
@@ -150,12 +169,12 @@ export default function TableKategori({
                   <div className="flex items-center gap-2">
                     <button
                       className="text-yellow-300 hover:cursor-pointer hover:text-yellow-500"
-                      onClick={() => handleOpenEdit(category)}
+                      onClick={() => handleEditOpen(sticker)}
                     >
                       <Edit />
                     </button>
                     <button
-                      onClick={() => handleOpenDelete(category)}
+                      onClick={() => handleDeleteOpen(sticker)}
                       className="text-red-500 hover:cursor-pointer hover:text-red-800"
                     >
                       <Trash2 />
@@ -200,14 +219,12 @@ export default function TableKategori({
           ))}
         </select>
       </div>
-      {/* Edit Modal */}
       {editModal && (
-        <AppModal title="Edit Kategori" onClose={() => handleCloseEdit()}>
+        <AppModal title="Tambah Sticker" onClose={handleEditClose}>
           <form
             action=""
             className="grid grid-cols-2 gap-3"
             onSubmit={handleEdit}
-            method="POST"
           >
             <div className="space-y-1">
               <span className="font-semibold">Nama</span>
@@ -224,10 +241,10 @@ export default function TableKategori({
               <span className="font-semibold">Status</span>
               <select
                 name="status"
+                value={status}
                 onChange={(e) =>
                   setStatus(e.target.value as "active" | "inactive")
                 }
-                value={status}
                 className="w-full rounded-lg border-2 border-gray-300 px-3"
               >
                 <option value="active">Aktif</option>
@@ -238,8 +255,8 @@ export default function TableKategori({
               <span className="font-semibold">Max Price</span>
               <input
                 name="maxPrice"
-                type="number"
                 value={maxPrice}
+                type="number"
                 onChange={(e) => setMaxPrice(Number(e.target.value))}
                 className="w-full rounded-lg border-2 border-gray-300 px-3"
                 placeholder="Masukkan Max Price ..."
@@ -250,31 +267,77 @@ export default function TableKategori({
               </span>
             </div>
             <div className="space-y-1">
-              <span className="font-semibold">Discount</span>
+              <span className="font-semibold">Min Price</span>
               <input
-                name="discount"
+                name="minPrice"
+                value={minPrice}
                 type="number"
-                value={discount}
-                onChange={(e) => {
-                  let value = Number(e.target.value)
-
-                  if (value > 100) value = 100 // Maksimal 100
-                  if (value < 0) value = 0 // Minimal 0 (mencegah angka minus)
-
-                  setDiscount(value)
-                }}
+                onChange={(e) => setMinPrice(Number(e.target.value))}
                 className="w-full rounded-lg border-2 border-gray-300 px-3"
-                placeholder="Masukkan Discount ..."
+                placeholder="Masukkan Min Price ..."
               />
+              {/* Helper */}
               <span className="text-[10px] text-gray-500 italic">
-                Format: {discount}%
+                Format: Rp {formatRibuan(minPrice)}
               </span>
             </div>
+            <div className="space-y-1">
+              <span className="font-semibold">Tipe</span>
+              <select
+                name="type"
+                value={type}
+                onChange={(e) =>
+                  setType(e.target.value as "small" | "big" | "tiny")
+                }
+                className="w-full rounded-lg border-2 border-gray-300 px-3"
+              >
+                <option value="small">Small</option>
+                <option value="big">Big</option>
+                <option value="tiny">Tiny</option>
+              </select>
+            </div>
+            <div className="space-y-1">
+              <span className="font-semibold">Fixed Price</span>
+              <input
+                name="fixedPrice"
+                type="number"
+                value={fixedPrice}
+                onChange={(e) => setFixedPrice(Number(e.target.value))}
+                className="w-full rounded-lg border-2 border-gray-300 px-3"
+                placeholder="Masukkan Fixed Price ..."
+              />
+              <span className="text-[10px] text-gray-500 italic">
+                Format: Rp {formatRibuan(fixedPrice)}
+              </span>
+            </div>
+            {/* Input Hex Color */}
+            <div className="col-span-2 space-y-1">
+              <span className="font-semibold">Warna Sticker (Hex)</span>
+              <div className="flex items-center gap-3">
+                {/* Preview & Color Picker */}
+                <input
+                  type="color"
+                  value={codeHex || "#000000"}
+                  onChange={(e) => setCodeHex(e.target.value)}
+                  className="w-10 border-2 border-gray-300 p-0 hover:cursor-pointer"
+                />
 
+                {/* Text Input */}
+                <input
+                  name="code_hex"
+                  type="text"
+                  value={codeHex}
+                  onChange={(e) => setCodeHex(e.target.value)}
+                  className="w-full rounded-lg border-2 border-gray-300 px-3 uppercase"
+                  placeholder="#FFFFFF"
+                  maxLength={7}
+                />
+              </div>
+            </div>
             <div className="col-span-2 flex w-full justify-end">
               <div className="flex items-center gap-3">
                 <button
-                  onClick={() => handleCloseEdit()}
+                  onClick={handleEditClose}
                   className="rounded-lg border-2 px-3 py-1 hover:cursor-pointer"
                 >
                   Batal
@@ -292,16 +355,25 @@ export default function TableKategori({
       )}
 
       {/* Delete */}
-      {/* Modal Delete user */}
       {deleteModal && (
-        <AppModal onClose={handleCloseDelete} title="Hapus User">
+        <AppModal onClose={handleDeleteClose} title="Hapus Sticker">
           <form method="delete" onSubmit={handleDelete}>
             <div className="space-y-5">
               <div className="w-full justify-center text-center">
                 <Trash2 className="mx-auto mb-3 text-red-500" size={48} />
                 <div className="space-y-1">
                   <p>Anda yakin ingin menghapus kategori ini?</p>
-                  <h3 className="text-xl font-bold">{name ?? "Kategori"}</h3>
+                  <div className="flex justify-center">
+                    <div className="flex items-center gap-3">
+                      <div
+                        className="h-6 w-6 rounded-full"
+                        style={{ backgroundColor: `${deleteCodeHex}` }}
+                      ></div>
+                      <h3 className="text-xl font-bold">
+                        {deleteName ?? "Kategori"}
+                      </h3>
+                    </div>
+                  </div>
                 </div>
               </div>
               <div className="w-full space-y-2">
@@ -312,7 +384,7 @@ export default function TableKategori({
                   Hapus
                 </button>
                 <button
-                  onClick={handleCloseDelete}
+                  onClick={handleDeleteClose}
                   className="w-full rounded-lg border-2 border-red-400 bg-red-600 text-white hover:cursor-pointer hover:bg-transparent hover:text-red-600"
                 >
                   Batal

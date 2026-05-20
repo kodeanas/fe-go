@@ -1,0 +1,18 @@
+code: ""
+status: ""
+data: [
+    {
+        label: "Kategori / Sticker",
+        item: "10"
+        price: "Rp. 10.000"
+        PRICE_WAREHOUSE: "Rp. 10.000"
+    },
+    {
+                label: "Kategori / Sticker",
+        item: "10"
+        price: "Rp. 10.000"
+        PRICE_WAREHOUSE: "Rp. 10.000"
+    }
+]
+
+1. SummaryBastAll

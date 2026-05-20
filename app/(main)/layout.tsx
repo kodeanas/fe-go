@@ -1,4 +1,7 @@
+"use client"
+
 import { DynamicBreadcrumb } from "@/components/globals/app-breadcrumb"
+import { cn } from "@/lib/utils"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -38,6 +41,8 @@ import {
   PhoneCall,
 } from "lucide-react"
 import Link from "next/link"
+import { usePathname } from "next/navigation"
+import { useEffect, useState } from "react"
 
 const menus = [
   {
@@ -61,10 +66,10 @@ const menus = [
         title: "ScanIn",
         href: "#",
         subItems: [
-          { title: "Bast", href: "/inbound/scanin/bast" },
-          { title: "Bulk", href: "/inbound/scanin/bulk" },
-          { title: "SKU", href: "/inbound/scanin/sku" },
-          { title: "Satuan", href: "/inbound/scanin/satuan" },
+          { title: "Bast", href: "/bast" },
+          { title: "Bulk", href: "/bulk" },
+          { title: "SKU", href: "/sku" },
+          { title: "Satuan", href: "/satuan" },
         ],
       },
       { title: "Return BKL", href: "/inbound/return-bkl", subItems: [] },
@@ -77,7 +82,7 @@ const menus = [
         title: "Staging Reguler",
         href: "#",
         subItems: [
-          { title: "Bag", href: "/staging/reguler/bag" },
+          { title: "Bag", href: "/bag-staging-reguler" },
           { title: "Produk", href: "/staging/reguler/produk" },
         ],
       },
@@ -99,7 +104,7 @@ const menus = [
         title: "Display",
         href: "#",
         subItems: [
-          { title: "Rak", href: "/inventory/display/rak" },
+          { title: "Rak", href: "/rak-display" },
           { title: "Produk", href: "/inventory/display/produk" },
         ],
       },
@@ -175,13 +180,14 @@ const menus = [
           { title: "User Toko", href: "/admin/user/toko" },
         ],
       },
-      { title: "PPN", href: "/admin/ppn", subItems: [] },
+      { title: "PPN", href: "/ppn", subItems: [] },
+      { title: "Kelas Buyer", href: "/kelas-buyer", subItems: [] },
       {
         title: "Potongan Harga",
         href: "#",
         subItems: [
           { title: "Kategori", href: "/kategori" },
-          { title: "Sticker", href: "/admin/potongan/sticker" },
+          { title: "Sticker", href: "/sticker" },
         ],
       },
     ],
@@ -193,6 +199,19 @@ export default function MainLayout({
 }: {
   children: React.ReactNode
 }) {
+  const pathname = usePathname()
+
+  // Helper function to check if menu is active
+  const isMenuActive = (href: string) => {
+    if (href === "#") return false
+    return pathname === href || pathname.startsWith(href + "/")
+  }
+
+  // Helper function to check if submenu parent should be open
+  const shouldBeOpen = (subItems: { href: string }[]) => {
+    return subItems.some((subItem) => isMenuActive(subItem.href))
+  }
+
   return (
     <SidebarProvider>
       <Sidebar className="">
@@ -208,7 +227,12 @@ export default function MainLayout({
         <SidebarContent>
           {menus.map((menu) => (
             <SidebarGroup key={menu.group}>
-              <SidebarGroupLabel>{menu.group}</SidebarGroupLabel>
+              <SidebarGroupLabel>
+                <div className="flex w-full items-center gap-3 text-lg whitespace-nowrap">
+                  <span>{menu.group}</span>
+                  <hr className="flex-1 border-t border-gray-300" />
+                </div>
+              </SidebarGroupLabel>
               <SidebarMenu>
                 {menu.items.map((item) => {
                   if (item.subItems.length > 0) {
@@ -217,10 +241,17 @@ export default function MainLayout({
                         asChild
                         key={item.title}
                         className="group/collapsible"
+                        defaultOpen={shouldBeOpen(item.subItems)}
                       >
                         <SidebarMenuItem>
                           <CollapsibleTrigger asChild>
-                            <SidebarMenuButton className="hover:cursor-pointer">
+                            <SidebarMenuButton
+                              className={cn(
+                                "hover:cursor-pointer",
+                                shouldBeOpen(item.subItems) &&
+                                  "!bg-blue-50 font-semibold !text-blue-700 hover:!bg-blue-100 dark:!bg-blue-950 dark:!text-blue-300"
+                              )}
+                            >
                               {/* Nama Menu */}
                               <span>{item.title}</span>
 
@@ -233,8 +264,15 @@ export default function MainLayout({
                             <SidebarMenuSub>
                               {item.subItems.map((subItem) => (
                                 <SidebarMenuSubItem key={subItem.title}>
-                                  <SidebarMenuSubButton asChild>
-                                    <Link href={subItem.href}>
+                                  <SidebarMenuSubButton
+                                    asChild
+                                    isActive={isMenuActive(subItem.href)}
+                                    className={cn(
+                                      isMenuActive(subItem.href) &&
+                                        "!bg-blue-100 font-semibold !text-blue-700 hover:!bg-blue-200 dark:!bg-blue-900 dark:!text-blue-200"
+                                    )}
+                                  >
+                                    <Link href={subItem.href} scroll={false}>
                                       {subItem.title}
                                     </Link>
                                   </SidebarMenuSubButton>
@@ -250,9 +288,16 @@ export default function MainLayout({
                       <SidebarMenuItem key={item.title}>
                         <SidebarMenuButton
                           asChild
-                          className="hover:cursor-pointer"
+                          className={cn(
+                            "hover:cursor-pointer",
+                            isMenuActive(item.href) &&
+                              "!bg-blue-100 font-semibold !text-blue-700 hover:!bg-blue-200 dark:!bg-blue-900 dark:!text-blue-200"
+                          )}
+                          isActive={isMenuActive(item.href)}
                         >
-                          <Link href={item.href}>{item.title}</Link>
+                          <Link href={item.href} scroll={false}>
+                            {item.title}
+                          </Link>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
                     )
