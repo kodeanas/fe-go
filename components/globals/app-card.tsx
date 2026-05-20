@@ -170,7 +170,7 @@ export function AppCardSmall({
   return (
     <div className="w-full rounded-lg border-2 border-gray-300 p-4">
       <div className="flex items-center justify-between">
-        <div className="grid grid-cols-3 items-center">
+        <div className="flex items-center gap-5">
           <div className="pr-3">
             <h1 className="text-lg font-bold">{code ?? "Code"}</h1>
           </div>
@@ -178,7 +178,9 @@ export function AppCardSmall({
             <p className="text-lg font-semibold">{nameFile ?? "Nama File"}</p>
           </div>
           <div className="flex flex-col px-3">
-            <p className="text-lg">{totalItem ?? 0} Item</p>
+            <p className="text-lg">
+              {totalItem && <>Total Item: {totalItem}</>}{" "}
+            </p>
             <p className="text-lg font-semibold text-blue-600">
               {typeof totalPrice === "number"
                 ? `Rp ${formatRibuan(totalPrice)}`
@@ -379,6 +381,81 @@ export function AppCardInput({
 
       {/* Children (untuk button submit, dll) */}
       {children && <div className="pt-2">{children}</div>}
+    </div>
+  )
+}
+
+interface MatrixRow {
+  rowLabel: string
+  values: (string | number | React.ReactNode)[] // Langsung array nilai berurutan sesuai kolom
+}
+
+interface AppCardMatrixProps {
+  title?: string
+  icon?: React.ReactNode
+  columns: string[] // Header kolom horizontal
+  rows: MatrixRow[] // Data baris (vertikal) dan isinya
+  labelWidth?: string // Lebar kolom label kiri (default 120px)
+}
+
+export function AppCardMatrix({
+  title = "Data Matrix",
+  icon,
+  columns,
+  rows,
+  labelWidth = "120px",
+}: AppCardMatrixProps) {
+  return (
+    <div className="w-full space-y-5 rounded-md border-2 border-gray-300 p-4">
+      {/* Header Card */}
+      <div className="flex items-center gap-3">
+        <div className="rounded-full bg-blue-400 p-3 text-white shadow-sm">
+          {icon ? icon : <Calendar size={20} />}
+        </div>
+        <h2 className="text-2xl font-bold">{title}</h2>
+      </div>
+
+      {/* Grid Table */}
+      <div className="overflow-x-auto pb-2">
+        <div
+          className="grid min-w-max items-center gap-x-4 gap-y-3 text-sm"
+          style={{
+            // Kolom pertama diatur labelWidth, sisanya dibagi rata sesuai jumlah kolom
+            gridTemplateColumns: `${labelWidth} repeat(${columns.length}, minmax(100px, 1fr))`,
+          }}
+        >
+          {/* Header Horizontal */}
+          <div className="transparent"></div>
+          {columns.map((col, idx) => (
+            <div
+              key={idx}
+              className="border-b pb-2 text-center font-bold text-gray-700 dark:text-gray-300"
+            >
+              {col}
+            </div>
+          ))}
+
+          {/* Baris Vertikal & Nilainya */}
+          {rows.map((row, rIdx) => (
+            <React.Fragment key={rIdx}>
+              {/* Label Kiri */}
+              <div className="pr-2 font-semibold text-gray-800 dark:text-gray-200">
+                {row.rowLabel}
+              </div>
+
+              {/* List Nilai Kolom */}
+              {row.values.map((val, vIdx) => (
+                <div
+                  key={vIdx}
+                  className="rounded-md border border-gray-100 bg-gray-50 p-2 text-center font-medium text-gray-900 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-200"
+                >
+                  {val ?? "-"}
+                </div>
+              ))}
+            </React.Fragment>
+          ))}
+        </div>
+      </div>
     </div>
   )
 }

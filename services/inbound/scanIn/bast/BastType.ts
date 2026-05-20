@@ -54,6 +54,7 @@ export interface DetailBastSummaryResponse {
   file_name: string
   file_item: number
   file_price: number
+  status: string
   good: {
     total_item: number
     total_price: number
@@ -103,4 +104,13 @@ export interface QueryParamsProductBast {
   page: number
   limit: number
   search?: string
+}
+
+export interface SummaryAllBastResponse {
+  total_document_inbound: number
+  total_document_scanned: number
+  total_product_good: number
+  total_product_damaged: number
+  total_product_abnormal: number
+  total_product_non: number
 }

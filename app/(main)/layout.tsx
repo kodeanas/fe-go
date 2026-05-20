@@ -68,7 +68,7 @@ const menus = [
         subItems: [
           { title: "Bast", href: "/bast" },
           { title: "Bulk", href: "/bulk" },
-          { title: "SKU", href: "/inbound/scanin/sku" },
+          { title: "SKU", href: "/sku" },
           { title: "Satuan", href: "/satuan" },
         ],
       },
@@ -82,7 +82,7 @@ const menus = [
         title: "Staging Reguler",
         href: "#",
         subItems: [
-          { title: "Bag", href: "/staging/reguler/bag" },
+          { title: "Bag", href: "/bag-staging-reguler" },
           { title: "Produk", href: "/staging/reguler/produk" },
         ],
       },
@@ -104,7 +104,7 @@ const menus = [
         title: "Display",
         href: "#",
         subItems: [
-          { title: "Rak", href: "/inventory/display/rak" },
+          { title: "Rak", href: "/rak-display" },
           { title: "Produk", href: "/inventory/display/produk" },
         ],
       },

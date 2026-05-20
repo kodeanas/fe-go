@@ -75,3 +75,8 @@ export const finishBast = async (id: string) => {
   const res = await api.post(`/inbound/bast-scanner/${id}/finish`)
   return res.data
 }
+
+export const getSummaryAllBast = async () => {
+  const res = await api.get(`/inbound/bast-summary-all`)
+  return res.data
+}

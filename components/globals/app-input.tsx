@@ -151,7 +151,7 @@ export const InputSelect = ({
     <select
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="w-full rounded-lg border-2 border-gray-300 bg-white px-3 py-2 focus:border-blue-500 focus:outline-none"
+      className="w-full rounded-lg border-2 border-gray-300 bg-white px-3 py-2 focus:border-blue-500 focus:outline-none dark:bg-gray-800"
     >
       {options.map((opt, idx) => (
         <option key={idx} value={opt.value}>

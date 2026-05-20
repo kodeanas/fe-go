@@ -6,21 +6,15 @@ import Link from "next/link"
 import React, { Suspense, useEffect } from "react"
 import BastTable from "./table"
 import { useRouter, useSearchParams } from "next/navigation"
-import { BastResponse } from "@/services/inbound/scanIn/bast/BastType"
+import {
+  BastResponse,
+  SummaryAllBastResponse,
+} from "@/services/inbound/scanIn/bast/BastType"
 import { Meta } from "@/services/Meta"
-import { getBastList } from "@/services/inbound/scanIn/bast/BastService"
-
-const dataDokumen = [
-  { label: "Total Dokumen Masuk", value: 150 },
-  { label: "Total Dokumen TerScan", value: 120 },
-]
-
-const dataProduk = [
-  { label: "Total Good", value: "20 / Rp 1.000.000" },
-  { label: "Total Damaged", value: "15 / Rp 500.000" },
-  { label: "Total Abnormal", value: "10 / Rp 200.000" },
-  { label: "Total Non", value: "5 / Rp 100.000" },
-]
+import {
+  getBastList,
+  getSummaryAllBast,
+} from "@/services/inbound/scanIn/bast/BastService"
 
 function BastContent() {
   const router = useRouter()
@@ -75,6 +69,22 @@ function BastContent() {
     router.replace(`?${params.toString()}`)
   }, [debouncedSearch, page, limit])
 
+  // Summary
+  const [summaryData, setSummaryData] =
+    React.useState<SummaryAllBastResponse | null>(null)
+  const fetchSummary = async () => {
+    try {
+      const data = await getSummaryAllBast()
+      setSummaryData(data.data)
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  useEffect(() => {
+    fetchSummary()
+  }, [])
+
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-2 gap-5">
@@ -82,12 +92,36 @@ function BastContent() {
           labelWidth="250px"
           title="Dokumen Masuk dan TerScan"
           icon={<FileText className="text-white" />}
-          data={dataDokumen}
+          data={[
+            {
+              label: "Total Dokumen Masuk",
+              value: summaryData?.total_document_inbound || 0,
+            },
+            {
+              label: "Total Dokumen TerScan",
+              value: summaryData?.total_document_scanned || 0,
+            },
+          ]}
         />
         <AppCardSummary
           title="Produk Terscan"
           icon={<FileText className="text-white" />}
-          data={dataProduk}
+          labelWidth="250px"
+          data={[
+            {
+              label: "Total Good",
+              value: summaryData?.total_product_good || 0,
+            },
+            {
+              label: "Total Damaged",
+              value: summaryData?.total_product_damaged || 0,
+            },
+            {
+              label: "Total Abnormal",
+              value: summaryData?.total_product_abnormal || 0,
+            },
+            { label: "Total Non", value: summaryData?.total_product_non || 0 },
+          ]}
         />
       </div>
       <div className="flex justify-end">

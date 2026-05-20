@@ -1,27 +1,20 @@
 "use client"
 
 import { AppCardSummary } from "@/components/globals/app-card"
-import { PaperclipIcon, Plus } from "lucide-react"
+import { PaperclipIcon, Plus, PlusIcon } from "lucide-react"
 import React, { Suspense, useEffect } from "react"
-import BulkTable from "./table"
 import Link from "next/link"
-import { useSearchParams, useRouter } from "next/navigation"
-import {
-  BulkResponse,
-  GetSummaryBulkResponse,
-} from "@/services/inbound/scanIn/bulk/BulkType"
+import TableSku from "./table"
+import { useRouter, useSearchParams } from "next/navigation"
+import { SkuResponse } from "@/services/inbound/scanIn/sku/SkuType"
 import { Meta } from "@/services/Meta"
-import {
-  getBulkList,
-  getSummaryBulk,
-} from "@/services/inbound/scanIn/bulk/BulkService"
-import { formatRibuan } from "@/lib/utils"
+import { getSkuList } from "@/services/inbound/scanIn/sku/SkuService"
 
-function BulkContent() {
+function SkuContent() {
   // Data
   const router = useRouter()
   const searchParams = useSearchParams()
-  const [bulk, setBulk] = React.useState<BulkResponse[]>([])
+  const [sku, setSku] = React.useState<SkuResponse[]>([])
   const [meta, setMeta] = React.useState<Meta | null>(null)
   const [search, setSearch] = React.useState("")
   // Ambil dari query params jika ada
@@ -42,12 +35,12 @@ function BulkContent() {
 
   const fetchData = async () => {
     try {
-      const data = await getBulkList({
+      const data = await getSkuList({
         search: debouncedSearch || undefined,
         page,
         limit,
       })
-      setBulk(data.data)
+      setSku(data.data)
       setMeta(data.meta)
       console.log(data)
     } catch (error) {
@@ -70,23 +63,6 @@ function BulkContent() {
     params.set("limit", String(limit))
     router.replace(`?${params.toString()}`)
   }, [debouncedSearch, page, limit])
-
-  // Summary
-  const [summary, setSummary] = React.useState<GetSummaryBulkResponse | null>(
-    null
-  )
-
-  const fetchSummary = async () => {
-    try {
-      const data = await getSummaryBulk()
-      setSummary(data.data)
-    } catch (error) {
-      console.error(error)
-    }
-  }
-  useEffect(() => {
-    fetchSummary()
-  }, [])
   return (
     <div className="space-y-5">
       <AppCardSummary
@@ -96,29 +72,29 @@ function BulkContent() {
         data={[
           {
             label: "Dokumen terupload",
-            value: summary?.total_document_upload || 0,
+            value: 10,
           },
           {
             label: "Produk Masuk",
-            value: summary?.total_product_masuk || 0,
+            value: 150,
           },
           {
             label: "Harga Total Masuk",
-            value: `Rp ${formatRibuan(summary?.total_harga_masuk || 0)}`,
+            value: "Rp 150.000.000",
           },
         ]}
       />
       <div className="flex w-full justify-end">
-        <Link href="/bulk/tambah">
-          <button className="flex items-center gap-3 rounded-lg bg-blue-400 px-3 py-2 text-white hover:cursor-pointer hover:bg-blue-700">
-            <Plus size={16} />
-            <p>Upload</p>
+        <Link href="/sku/tambah">
+          <button className="flex items-center gap-3 rounded-lg bg-blue-400 px-3 py-2 text-white hover:cursor-pointer hover:bg-blue-600">
+            <PlusIcon size={16} className="text-white" />
+            Upload
           </button>
         </Link>
       </div>
       <div className="rounded-lg border-2 border-gray-300 p-4">
-        <BulkTable
-          bulk={bulk}
+        <TableSku
+          sku={sku}
           onSearch={setSearch}
           page={page}
           limit={limit}
@@ -132,10 +108,10 @@ function BulkContent() {
   )
 }
 
-export default function BulkPage() {
+export default function SkuPage() {
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <BulkContent />
+      <SkuContent />
     </Suspense>
   )
 }

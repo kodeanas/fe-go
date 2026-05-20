@@ -35,18 +35,6 @@ import { Meta } from "@/services/Meta"
 import { getClasses } from "@/services/class/ClassService"
 import { AppModal } from "@/components/globals/app-modal"
 
-const barangNon = [
-  { label: "Total Item", value: "5" },
-  {
-    label: "Total Price",
-    value: "Rp 100.000",
-  },
-  {
-    label: "Persentase",
-    value: "5%",
-  },
-]
-
 function BastDetailContent() {
   // Data Summary
   const idData = useParams().id
@@ -290,8 +278,8 @@ function BastDetailContent() {
         totalPrice={summaryData?.file_price}
       >
         <div className="flex items-center gap-5">
-          <div className="bg-blue rounded-xl bg-blue-400 px-5 py-1 text-lg font-semibold text-white">
-            Progress
+          <div className="bg-blue rounded-xl bg-blue-400 px-5 py-1 text-lg font-semibold text-white uppercase">
+            {summaryData?.status}
           </div>
           <button
             onClick={handleOpen}
